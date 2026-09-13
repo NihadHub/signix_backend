@@ -37,4 +37,8 @@ public class GlobalExceptionHandler {
         body.put("error", message);
         return ResponseEntity.status(status).body(body);
     }
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidFile(InvalidFileException ex) {
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
 }

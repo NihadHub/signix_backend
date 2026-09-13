@@ -3,16 +3,13 @@ package com.signix.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.signix.model.enums.DocumentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@Builder
 @Setter @Getter @AllArgsConstructor @NoArgsConstructor
 @Entity
 public class Document {
@@ -30,6 +27,7 @@ public class Document {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private DocumentStatus status= DocumentStatus.DRAFT;
 
     @CreationTimestamp

@@ -2,14 +2,11 @@ package com.signix.model;
 
 import com.signix.model.enums.AuditAction;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-
+@Builder
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Entity
 public class AuditLog {
