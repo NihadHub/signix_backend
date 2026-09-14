@@ -41,4 +41,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleInvalidFile(InvalidFileException ex) {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
+    @ExceptionHandler(SigningRequestNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleSigningRequestNotFound(SigningRequestNotFoundException ex) {
+        return buildError(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(LinkExpiredException.class)
+    public ResponseEntity<Map<String, String>> handleLinkExpired(LinkExpiredException ex) {
+        return buildError(HttpStatus.GONE, ex.getMessage());
+    }
+
+    @ExceptionHandler(AlreadySignedException.class)
+    public ResponseEntity<Map<String, String>> handleAlreadySigned(AlreadySignedException ex) {
+        return buildError(HttpStatus.CONFLICT, ex.getMessage());
+    }
 }
