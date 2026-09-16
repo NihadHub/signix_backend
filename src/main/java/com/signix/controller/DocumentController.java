@@ -1,9 +1,11 @@
 package com.signix.controller;
 
+import com.signix.dto.AuditLogResponse;
 import com.signix.dto.DocumentResponse;
 import com.signix.dto.SendDocumentRequest;
 import com.signix.model.Document;
 import com.signix.model.User;
+import com.signix.service.AuditLogService;
 import com.signix.service.DocumentService;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
@@ -28,7 +30,7 @@ import java.net.MalformedURLException;
 @RequestMapping
 public class DocumentController {
     private final DocumentService documentService;
-
+    private final AuditLogService auditLogService;
    @PostMapping
         public ResponseEntity<DocumentResponse> upload(@AuthenticationPrincipal User owner, @RequestParam  String title, @RequestParam MultipartFile file) throws IOException {
      DocumentResponse documentResponse= documentService.uploadDocument(owner,title,file);
@@ -65,50 +67,14 @@ public class DocumentController {
                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"document.pdf\"")
                .body(resource);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   @GetMapping("/{id}/history")
+   public Page<AuditLogResponse> getHistory(
+           @AuthenticationPrincipal User owner,
+           @PathVariable Long id,
+           @RequestParam(defaultValue = "0") int page,
+           @RequestParam(defaultValue = "10") int size){
+   Pageable pageable= PageRequest.of(page, size);
+    Document document= documentService.getDocumentEntity(id,owner);
+    return auditLogService.getDocumentHistory(document, pageable);
+   }
 }

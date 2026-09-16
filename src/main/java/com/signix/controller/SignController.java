@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/sign")
@@ -22,7 +24,7 @@ public class SignController {
     }
 
     @PostMapping("/{token}")
-    public ResponseEntity<SigningRequestResponse> sign(@PathVariable String token,@Valid @RequestBody SignDocumentRequest signDocumentRequest){
+    public ResponseEntity<SigningRequestResponse> sign(@PathVariable String token,@Valid @RequestBody SignDocumentRequest signDocumentRequest) throws IOException {
         SigningRequestResponse response= signingRequestService.signDocument(token,signDocumentRequest.getSignatureImageBase64());
         return ResponseEntity.ok(response);
     }

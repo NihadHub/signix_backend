@@ -6,16 +6,13 @@ import com.signix.exception.InvalidFileException;
 import com.signix.exception.InvalidStateException;
 import com.signix.exception.UnauthorizedDocumentAccessException;
 import com.signix.mapper.DocumentMapper;
-import com.signix.model.AuditLog;
 import com.signix.model.Document;
 import com.signix.model.SigningRequest;
 import com.signix.model.User;
 import com.signix.model.enums.AuditAction;
 import com.signix.model.enums.DocumentStatus;
-import com.signix.repository.AuditLogRepository;
 import com.signix.repository.DocumentRepository;
 import com.signix.repository.SigningRequestRepository;
-import com.signix.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -39,10 +36,9 @@ public class DocumentService {
     @Value("${app.signing.expiration-days}")
     private int expirationDays;
     private final DocumentRepository documentRepository;
-    private final AuditLogRepository auditLogRepository;
     private final DocumentMapper documentMapper;
     private final SigningRequestRepository signingRequestRepository;
-    private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
     public DocumentResponse uploadDocument(User owner, String title, MultipartFile file) throws IOException {
         if(file==null || file.isEmpty()){
             throw new InvalidFileException("Le fichier est obligatoire");
@@ -67,13 +63,7 @@ public class DocumentService {
                 .build();
          Document savedDocument = documentRepository.save(document);
 
-        AuditLog log = AuditLog.builder()
-                .document(savedDocument)
-                .action(AuditAction.DOCUMENT_CREATED)
-                .actor(owner.getEmail())
-                . build();
-        auditLogRepository.save(log);
-
+         auditLogService.log(document,AuditAction.DOCUMENT_CREATED,owner.getEmail());
         return documentMapper.toResponse(savedDocument);
     }
 
@@ -101,12 +91,7 @@ public class DocumentService {
         document.setSentAt(LocalDateTime.now());
         documentRepository.save(document);
 
-        AuditLog auditLog= AuditLog.builder()
-                .document(document)
-                .action(AuditAction.DOCUMENT_SENT)
-                .actor(owner.getEmail())
-                .build();
-        auditLogRepository.save(auditLog);
+        auditLogService.log(document,AuditAction.DOCUMENT_SENT, owner.getEmail());
         return documentMapper.toResponse(document);
 
     }
@@ -144,40 +129,11 @@ public class DocumentService {
         Path filePath = Paths.get(uploadDir, fileName);
         return new UrlResource(filePath.toUri());
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public Document getDocumentEntity(Long documentId, User owner){
+        Document document = documentRepository.findById(documentId).orElseThrow(() -> new DocumentNotFoundException(documentId));
+        if(!document.getOwner().getId().equals(owner.getId())){
+            throw new UnauthorizedDocumentAccessException();
+        }
+        return document;
+    }
 }
