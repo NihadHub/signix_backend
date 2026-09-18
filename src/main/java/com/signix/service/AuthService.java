@@ -5,6 +5,7 @@ import com.signix.dto.LoginRequest;
 import com.signix.dto.RegisterRequest;
 import com.signix.exception.EmailAlreadyExistsException;
 import com.signix.model.User;
+import com.signix.model.enums.Role;
 import com.signix.repository.UserRepository;
 import com.signix.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
+                .role(Role.USER)
                 .build();
         userRepository.save(user);
         String token = jwtService.generateToken(user);
