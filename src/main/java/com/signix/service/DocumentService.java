@@ -67,15 +67,17 @@ public class DocumentService {
         return documentMapper.toResponse(savedDocument);
     }
 
-    public DocumentResponse sendDocument(User owner,Long documentId, String signerEmail ){
-        Document document= documentRepository.findById(documentId).orElseThrow(() -> new DocumentNotFoundException(documentId));
+    public DocumentResponse sendDocument(User owner, Long documentId, String signerEmail) {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new DocumentNotFoundException(documentId));
 
-        if(! document.getOwner().getId().equals(owner.getId())){
+        if (!document.getOwner().getId().equals(owner.getId())) {
             throw new UnauthorizedDocumentAccessException();
         }
-        if(!document.getStatus().equals(DocumentStatus.DRAFT) ){
+        if (!document.getStatus().equals(DocumentStatus.DRAFT)) {
             throw new InvalidStateException("On ne peut envoyer qu'un brouillon");
         }
+
         String token = UUID.randomUUID().toString();
         LocalDateTime experationDate = LocalDateTime.now().plusDays(expirationDays);
 
@@ -87,13 +89,13 @@ public class DocumentService {
                 .build();
         signingRequestRepository.save(signingRequest);
 
+        document.setSigningRequest(signingRequest);
         document.setStatus(DocumentStatus.SENT);
         document.setSentAt(LocalDateTime.now());
         documentRepository.save(document);
 
-        auditLogService.log(document,AuditAction.DOCUMENT_SENT, owner.getEmail());
+        auditLogService.log(document, AuditAction.DOCUMENT_SENT, owner.getEmail());
         return documentMapper.toResponse(document);
-
     }
 
     public Page<DocumentResponse > getUserDocuments(User owner, Pageable pageable){

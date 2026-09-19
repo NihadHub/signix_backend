@@ -27,7 +27,7 @@ import java.net.MalformedURLException;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping
+@RequestMapping("/documents")
 public class DocumentController {
     private final DocumentService documentService;
     private final AuditLogService auditLogService;

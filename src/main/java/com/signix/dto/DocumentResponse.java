@@ -17,4 +17,5 @@ public class DocumentResponse {
     private LocalDateTime sentAt;
     private LocalDateTime signedAt;
     private String signerEmail;
+    private String signingToken;
 }

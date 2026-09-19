@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface DocumentMapper {
+
     @Mapping(target = "signerEmail", source = "signingRequest.signerEmail")
+    @Mapping(target = "signingToken", source = "signingRequest.token")
     DocumentResponse toResponse(Document document);
 }
