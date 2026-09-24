@@ -12,20 +12,28 @@ import com.signix.model.enums.DocumentStatus;
 import com.signix.repository.DocumentRepository;
 import com.signix.repository.SigningRequestRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class SigningRequestService {
+    @Value("${app.upload.dir}")
+    private String uploadDir;
     private final SigningRequestRepository signingRequestRepository;
     private final DocumentRepository documentRepository;
     private final SigningRequestMapper signingRequestMapper;
     private final PdfService pdfService;
     private final AuditLogService auditLogService;
-    //Trouver la demande de signature correspondant à ce token dans bd.
+
     public SigningRequestResponse getSigningRequestByToken(String token){
         SigningRequest signingRequest= signingRequestRepository.findSigningRequestByToken(token).orElseThrow(() -> new SigningRequestNotFoundException(token) );
        checkExpiration(signingRequest);
@@ -67,5 +75,12 @@ public class SigningRequestService {
             throw new LinkExpiredException();
         }
     }
+    public Resource getDocumentFile(String token) throws MalformedURLException {
+        SigningRequest signingRequest = signingRequestRepository.findSigningRequestByToken(token)
+                .orElseThrow(() -> new SigningRequestNotFoundException(token));
+        checkExpiration(signingRequest);
 
+        Path filePath = Paths.get(uploadDir, signingRequest.getDocument().getFilePath());
+        return new UrlResource(filePath.toUri());
+    }
 }
