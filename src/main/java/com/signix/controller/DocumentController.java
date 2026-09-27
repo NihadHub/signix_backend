@@ -5,6 +5,7 @@ import com.signix.dto.DocumentResponse;
 import com.signix.dto.SendDocumentRequest;
 import com.signix.model.Document;
 import com.signix.model.User;
+import com.signix.model.enums.DocumentStatus;
 import com.signix.service.AuditLogService;
 import com.signix.service.DocumentService;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,11 +46,14 @@ public class DocumentController {
    }
 
     @GetMapping
-    public Page<DocumentResponse> userDocuments(@AuthenticationPrincipal User owner,  @RequestParam ( defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "10") int size   ){
-       Pageable pageable= PageRequest.of(page,size);
-        return documentService.getUserDocuments(owner,pageable);
-
+    public Page<DocumentResponse> userDocuments(
+            @AuthenticationPrincipal User owner,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) DocumentStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return documentService.searchUserDocuments(owner, title, status, pageable);
     }
 
     @DeleteMapping("/{id}")

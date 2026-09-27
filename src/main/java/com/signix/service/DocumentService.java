@@ -138,4 +138,8 @@ public class DocumentService {
         }
         return document;
     }
+    public Page<DocumentResponse> searchUserDocuments(User owner, String title, DocumentStatus status, Pageable pageable) {
+        return documentRepository.searchDocuments(owner, title, status, pageable)
+                .map(documentMapper::toResponse);
+    }
 }
