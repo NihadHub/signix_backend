@@ -21,8 +21,6 @@ public class AuditLog {
     @Column(nullable = false)
     private String actor;
 
-    private String ipAddress;
-
     @CreationTimestamp
     @Column(updatable  = false)
     private LocalDateTime timestamp;
